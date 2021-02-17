@@ -1,0 +1,8 @@
+version: '2'
+services:
+  node:
+    container_name: node
+    image: node
+    ports:
+      - "60000:8080"
+    restart: always
