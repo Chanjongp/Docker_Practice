@@ -2,8 +2,31 @@ version: '2'
 services:
   front:
     image: chatapp:latest
+    container_name: front
     ports: 
       - "60003:8080"
+    restart: always
+  back:
+    image: fedormelexin/graphql-engine-arm64:latest
+    container_name: back
+    depends_on: 
+      - "db"
+    ports:
+      - "60004:8080"
+    volumes:
+    - ./hasura/migrations:/hasura-migrations
+    restart: always
+    environment:
+      HASURA_GRAPHQL_DATABASE_URL: postgres://postgres:@postgres:5432/postgres
+      HASURA_GRAPHQL_ENABLE_CONSOLE: "true" # set to "false" to disable console
+      HASURA_GRAPHQL_ENABLED_LOG_TYPES: startup, http-log, webhook-log, websocket-log, query-log
+      ## uncomment next line to set an admin secret
+      # HASURA_GRAPHQL_ADMIN_SECRET: myadminsecretkey
+  db:
+    image: arm64v8/postgres:latest
+    container_name: db
+    restart: always
     environment: 
-      HASURA_GRAPHQL_ENGINE_HOSTNAME : http://192.168.197.251
-    
+      POSTGRES_HOST_AUTH_METHOD : trust
+    ports:
+      - "5432:5432"
